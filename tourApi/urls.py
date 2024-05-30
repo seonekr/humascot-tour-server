@@ -112,4 +112,22 @@ urlpatterns = [
         views.GuideDestroyAPIView.as_view(),
         name="guide-delete",
     ),
+    # Ticket management
+    path("ticket/list/", views.TicketListAPIView.as_view(), name="ticket-list"),
+    path("ticket/create/", views.TicketCreateAPIView.as_view(), name="ticket-create"),
+    path(
+        "ticket/detail/<int:pk>/",
+        views.TicketRetrieveAPIView.as_view(),
+        name="ticket-detail",
+    ),
+    path(
+        "ticket/update/<int:pk>/",
+        views.TicketUpdateAPIView.as_view(),
+        name="ticket-update",
+    ),
+    path(
+        "ticket/delete/<int:pk>/",
+        views.TicketDestroyAPIView.as_view(),
+        name="ticket-delete",
+    ),
 ]

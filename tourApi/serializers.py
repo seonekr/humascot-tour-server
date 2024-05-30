@@ -380,3 +380,85 @@ class GuideCreateSerializer(serializers.ModelSerializer):
                 ImageGuideModel.objects.create(guide=instance, image=image_file)
 
         return instance
+
+
+class ImageTicketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImageTicketModel
+        fields = "__all__"
+
+
+class TicketSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField()
+
+    def get_images(self, obj):
+        images = ImageTicketModel.objects.filter(ticket=obj)
+        serializer = ImageTicketSerializer(images, many=True)
+        return [i["image"] for i in serializer.data]
+
+    class Meta:
+        model = Ticket
+        fields = [
+            "id",
+            "category",
+            "name",
+            "image",
+            "images",
+            "description",
+            "address",
+            "price",
+            "brand",
+            "carnumber",
+        ]
+
+
+class TicketCreateSerializer(serializers.ModelSerializer):
+    images = serializers.ListField(child=serializers.ImageField(), required=False)
+
+    class Meta:
+        model = Ticket
+        fields = [
+            "id",
+            "category",
+            "name",
+            "image",
+            "images",
+            "description",
+            "address",
+            "price",
+            "brand",
+            "carnumber",
+        ]
+
+    def create(self, validated_data):
+        images_data = validated_data.pop("images", [])
+
+        ticket = Ticket.objects.create(**validated_data)
+
+        for image_file in images_data:
+            image = ImageTicketModel.objects.create(ticket=ticket, image=image_file)
+
+        return ticket
+
+    def update(self, instance, validated_data):
+        images_data = validated_data.pop("images", [])
+
+        # Update Ticket fields
+        instance.category = validated_data.get("category", instance.category)
+        instance.name = validated_data.get("name", instance.name)
+        instance.image = validated_data.get("image", instance.image)
+        instance.description = validated_data.get("description", instance.description)
+        instance.price = validated_data.get("price", instance.price)
+        instance.address = validated_data.get("address", instance.address)
+        instance.brand = validated_data.get("brand", instance.brand)
+        instance.carnumber = validated_data.get("carnumber", instance.carnumber)
+        instance.save()
+
+        if images_data:
+            # Clear existing images if any
+            ImageTicketModel.objects.filter(ticket=instance).delete()
+            # Add new images
+            for image_file in images_data:
+                ImageTicketModel.objects.create(ticket=instance, image=image_file)
+
+        return instance
