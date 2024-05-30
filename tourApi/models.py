@@ -1,91 +1,5 @@
 from django.db import models
 
-# Create your models here.
-
-
-class CategoryModelHotel(models.Model):
-    class Meta:
-        db_table = "categoryHotel"
-        verbose_name_plural = "3.3.3 Category Hotel Type"
-
-    name = models.CharField(max_length=100, verbose_name="Category name")
-
-    def __str__(self):
-        return str(self.name)
-class CategoryModelRestaurant(models.Model):
-    class Meta:
-        db_table = "categoryRestaurant"
-        verbose_name_plural = "4.4.4 Category Restaurant Type"
-
-    name = models.CharField(max_length=100, verbose_name="Category name")
-
-    def __str__(self):
-        return str(self.name)
-class CategoryModelTicket(models.Model):
-    class Meta:
-        db_table = "categoryTicket"
-        verbose_name_plural = "5.5.5 Category Ticket Type"
-
-    name = models.CharField(max_length=100, verbose_name="Category name")
-
-    def __str__(self):
-        return str(self.name)
-class CategoryModelPacket(models.Model):
-    class Meta:
-        db_table = "categoryPacket"
-        verbose_name_plural = "6.6.6 Category Packet Type"
-
-    name = models.CharField(max_length=100, verbose_name="Category name")
-
-    def __str__(self):
-        return str(self.name)
-class CategoryModelGuide(models.Model):
-    class Meta:
-        db_table = "categoryGuide"
-        verbose_name_plural = "7.7.7 Category Guide Type"
-
-    name = models.CharField(max_length=100, verbose_name="Category name")
-
-    def __str__(self):
-        return str(self.name)
-
-
-#1
-class Sitemain(models.Model):
-    class Meta:
-        db_table = "site"
-        verbose_name_plural = "1. Site main" 
-    
-    name = models.CharField(max_length=100, default="name")
-    logo = models.ImageField(upload_to='media/', null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    def __str__(self):
-        return str(self.name)
-    
-class ImagebannerModel(models.Model):
-    class Meta:
-        db_table = "ImageBannerModel"
-        verbose_name_plural = "1.1. image banner list"
-
-    banner = models.ForeignKey(Sitemain, on_delete=models.CASCADE, verbose_name="Sitemain")
-    image = models.FileField(null=True, blank=True, verbose_name="image", upload_to="media/")
-
-    def __str__(self):
-        return f"Image for {self.banner.name}"
-
-#2
-class CategoryModelTour(models.Model):
-    class Meta:
-        db_table = "categoryTour"
-        verbose_name_plural = "2.2.2 Category Tour Type"
-
-    name = models.CharField(max_length=100, verbose_name="Category name")
-
-    def __str__(self):
-        return str(self.name)
-
 class Tour(models.Model):
     class Meta:
         db_table = "tour"
@@ -112,13 +26,12 @@ class ImageTourModel(models.Model):
     def __str__(self):
         return f"Image for {self.tour.name}"
     
-#3
 class Hotel(models.Model):
     class Meta:
         db_table = "hotel"
         verbose_name_plural = "3. Hotel" 
         
-    category = models.ForeignKey(CategoryModelHotel, on_delete=models.CASCADE, verbose_name="category")
+    category = models.CharField(max_length=100)
     name = models.CharField(max_length=100, default="name")
     image = models.ImageField(upload_to='media/', null=True, blank=True)
     description = models.TextField()
@@ -144,7 +57,7 @@ class Restaurant(models.Model):
     class Meta:
         db_table = "restaurant"
         verbose_name_plural = "4. Restaurant" 
-    category = models.ForeignKey(CategoryModelRestaurant, on_delete=models.CASCADE, verbose_name="category")
+    category = models.CharField(max_length=100)
     name = models.CharField(max_length=100, default="name")
     image = models.ImageField(upload_to='media/', null=True, blank=True)
     description = models.TextField()
@@ -170,7 +83,7 @@ class Ticket(models.Model):
         db_table = "Ticket"
         verbose_name_plural = "5. ticket" 
         
-    category = models.ForeignKey(CategoryModelTicket, on_delete=models.CASCADE, verbose_name="category")
+    category = models.CharField(max_length=100)
     name = models.CharField(max_length=100, default="name")
     image = models.ImageField(upload_to='media/', null=True, blank=True)
     description = models.TextField()
@@ -199,7 +112,7 @@ class Packet(models.Model):
         db_table = "packet"
         verbose_name_plural = "6. Packet" 
     
-    category = models.ForeignKey(CategoryModelPacket, on_delete=models.CASCADE, verbose_name="category")
+    category = models.CharField(max_length=100)
     name = models.CharField(max_length=100, default="name")
     image = models.ImageField(upload_to='media/', null=True, blank=True)
     description = models.TextField()
@@ -226,7 +139,7 @@ class Guide(models.Model):
         db_table = "guide"
         verbose_name_plural = "7. Guide" 
     
-    category = models.ForeignKey(CategoryModelGuide, on_delete=models.CASCADE, verbose_name="category")
+    category = models.CharField(max_length=100)
     name = models.CharField(max_length=100)
     image = models.ImageField(upload_to='media/')
     description = models.TextField()

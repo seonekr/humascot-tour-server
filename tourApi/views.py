@@ -5,119 +5,18 @@ from rest_framework.decorators import action
 from rest_framework import viewsets
 from rest_framework import status, generics, filters
 from django.http import Http404
-from .models import (
-    CategoryModelTour,
-    CategoryModelHotel,
-    CategoryModelRestaurant,
-    CategoryModelTicket,
-    CategoryModelPacket,
-    CategoryModelGuide,
-    Sitemain,
-    ImagebannerModel,
-    Tour,
-    ImageTourModel,
-    Hotel,
-    ImageHotelModel,
-    Restaurant,
-    ImageRestaurantModel,
-    Ticket,
-    ImageTicketModel,
-    Packet,
-    ImagePacketModel,
-    Guide,
-    ImageGuideModel,
-)
+from .models import Tour, Hotel, Restaurant, Packet, Guide
 
 from .serializers import (
-    CategoryTourSerializer,
-    CategoryHotelSerializer,
-    CategoryRestaurantSerializer,
-    CategoryTicketSerializer,
-    CategoryPacketSerializer,
-    CategoryGuideSerializer,
-    SitemainSerializer,
-    SitemainBannerSerializer,
     TourSerializer,
     TourCreateSerializer,
-    ImageTourSerializer,
     HotelSerializer,
-    ImageHotelSerializer,
+    HotelCreateSerializer,
     RestaurantSerializer,
-    ImageRestaurantSerializer,
-    TicketSerializer,
-    ImageTicketSerializer,
-    PacketSerializer,
-    ImagePacketSerializer,
-    GuideSerializer,
-    ImageGuideSerializer,
+    RestaurantCreateSerializer,
+    PacketSerializer, PacketCreateSerializer,
+    GuideSerializer, GuideCreateSerializer
 )
-
-
-class CategoryHotelViewSet(viewsets.ModelViewSet):
-    queryset = CategoryModelHotel.objects.all()
-    serializer_class = CategoryHotelSerializer
-
-
-class CategoryRestaurantViewSet(viewsets.ModelViewSet):
-    queryset = CategoryModelRestaurant.objects.all()
-    serializer_class = CategoryRestaurantSerializer
-
-
-class CategoryTicketViewSet(viewsets.ModelViewSet):
-    queryset = CategoryModelTicket.objects.all()
-    serializer_class = CategoryTicketSerializer
-
-
-class CategoryPacketViewSet(viewsets.ModelViewSet):
-    queryset = CategoryModelPacket.objects.all()
-    serializer_class = CategoryPacketSerializer
-
-
-class CategoryGuideViewSet(viewsets.ModelViewSet):
-    queryset = CategoryModelGuide.objects.all()
-    serializer_class = CategoryGuideSerializer
-
-
-# main page API 1
-class SitemainViewSet(viewsets.ModelViewSet):
-    queryset = Sitemain.objects.all()
-    serializer_class = SitemainSerializer
-
-    @action(detail=True, methods=["post"])
-    def upload_image(self, request, pk=None):
-        sitemain = self.get_object()
-        serializer = SitemainBannerSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(sitemain=sitemain)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class SitemainImageViewSet(viewsets.ModelViewSet):
-    queryset = ImagebannerModel.objects.all()
-    serializer_class = SitemainBannerSerializer
-
-
-# Tour API 2
-class CategoryTourViewSet(viewsets.ModelViewSet):
-    queryset = CategoryModelTour.objects.all()
-    serializer_class = CategoryTourSerializer
-
-
-class TourViewSet(viewsets.ModelViewSet):
-    queryset = Tour.objects.all()
-    serializer_class = TourSerializer
-
-    @action(detail=True, methods=["post"])
-    def upload_image(self, request, pk=None):
-        tour = self.get_object()
-        serializer = ImageTourSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(tour=tour)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # ====================================================================================================
@@ -149,7 +48,7 @@ class TourCreateAPIView(generics.CreateAPIView):
         if serializer.is_valid():
             serializer.save()
             return Response(
-                {"message": "success", "data": serializer.data},
+                {"message": "success"},
                 status=status.HTTP_201_CREATED,
             )
         return Response(
@@ -168,7 +67,7 @@ class TourUpdateAPIView(generics.UpdateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(
-            {"message": "success", "data": serializer.data},
+            {"message": "success"},
             status=status.HTTP_200_OK,
         )
 
@@ -197,118 +96,324 @@ class TourDestroyAPIView(generics.DestroyAPIView):
         instance = self.get_object()
         instance.delete()
         return Response({"message": "success"}, status=status.HTTP_200_OK)
-    
+
+
 # ====================================================================================================
 
 
-class TourImageViewSet(viewsets.ModelViewSet):
-    queryset = ImageTourModel.objects.all()
-    serializer_class = ImageTourSerializer
+# Hotel management's by oudone
+class HotelListAPIView(generics.ListAPIView):
+    queryset = Hotel.objects.all()
+    serializer_class = HotelSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["name"]  # Specify fields you want to search
 
 
-
-
-
-# Hotel API 3
-class HotelViewSet(viewsets.ModelViewSet):
+class HotelRetrieveAPIView(generics.RetrieveAPIView):
     queryset = Hotel.objects.all()
     serializer_class = HotelSerializer
 
-    @action(detail=True, methods=["post"])
-    def upload_image(self, request, pk=None):
-        hotel = self.get_object()
-        serializer = ImageHotelSerializer(data=request.data)
+    def get_object(self):
+        try:
+            return super().get_object()
+        except Http404:
+            raise Http404({"message": "Hotel not found"})
+
+
+class HotelCreateAPIView(generics.CreateAPIView):
+    queryset = Hotel.objects.all()
+    serializer_class = HotelCreateSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(hotel=hotel)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer.save()
+            return Response(
+                {"message": "success"},
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
-class HotelImageViewSet(viewsets.ModelViewSet):
-    queryset = ImageHotelModel.objects.all()
-    serializer_class = ImageHotelSerializer
+class HotelUpdateAPIView(generics.UpdateAPIView):
+    queryset = Hotel.objects.all()
+    serializer_class = HotelCreateSerializer
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(
+            {"message": "success"},
+            status=status.HTTP_200_OK,
+        )
+
+    def perform_update(self, serializer):
+        # Custom logic before saving if needed
+        serializer.save()
+
+    def get_object(self):
+        try:
+            return super().get_object()
+        except Http404:
+            raise Http404({"message": "Hotel not found"})
 
 
-# Restaurant API 4
-class RestaurantViewSet(viewsets.ModelViewSet):
+class HotelDestroyAPIView(generics.DestroyAPIView):
+    queryset = Hotel.objects.all()
+    serializer_class = HotelSerializer
+
+    def get_object(self):
+        try:
+            return super().get_object()
+        except Http404:
+            raise Http404({"message": "Hotel not found"})
+
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return Response({"message": "success"}, status=status.HTTP_200_OK)
+    
+
+# Restaurant management's by oudone
+class RestaurantListAPIView(generics.ListAPIView):
+    queryset = Restaurant.objects.all()
+    serializer_class = RestaurantSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["name"]  # Specify fields you want to search
+
+
+class RestaurantRetrieveAPIView(generics.RetrieveAPIView):
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantSerializer
 
-    @action(detail=True, methods=["post"])
-    def upload_image(self, request, pk=None):
-        restaurant = self.get_object()
-        serializer = ImageRestaurantSerializer(data=request.data)
+    def get_object(self):
+        try:
+            return super().get_object()
+        except Http404:
+            raise Http404({"message": "Restaurant not found"})
+
+
+class RestaurantCreateAPIView(generics.CreateAPIView):
+    queryset = Restaurant.objects.all()
+    serializer_class = RestaurantCreateSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(restaurant=restaurant)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer.save()
+            return Response(
+                {"message": "success"},
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
-class RestaurantImageViewSet(viewsets.ModelViewSet):
-    queryset = ImageRestaurantModel.objects.all()
-    serializer_class = ImageRestaurantSerializer
+class RestaurantUpdateAPIView(generics.UpdateAPIView):
+    queryset = Restaurant.objects.all()
+    serializer_class = RestaurantCreateSerializer
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(
+            {"message": "success"},
+            status=status.HTTP_200_OK,
+        )
+
+    def perform_update(self, serializer):
+        # Custom logic before saving if needed
+        serializer.save()
+
+    def get_object(self):
+        try:
+            return super().get_object()
+        except Http404:
+            raise Http404({"message": "Restaurant not found"})
 
 
-# Packet API 5
-class TicketViewSet(viewsets.ModelViewSet):
-    queryset = Ticket.objects.all()
-    serializer_class = TicketSerializer
+class RestaurantDestroyAPIView(generics.DestroyAPIView):
+    queryset = Restaurant.objects.all()
+    serializer_class = RestaurantSerializer
 
-    @action(detail=True, methods=["post"])
-    def upload_image(self, request, pk=None):
-        ticket = self.get_object()
-        serializer = ImageTicketSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(ticket=ticket)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get_object(self):
+        try:
+            return super().get_object()
+        except Http404:
+            raise Http404({"message": "Restaurant not found"})
 
-
-class TicketImageViewSet(viewsets.ModelViewSet):
-    queryset = ImageTicketModel.objects.all()
-    serializer_class = ImageTicketSerializer
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return Response({"message": "success"}, status=status.HTTP_200_OK)
 
 
-# Packet API 6
-class PacketViewSet(viewsets.ModelViewSet):
+# Packet management's by oudone
+class PacketListAPIView(generics.ListAPIView):
+    queryset = Packet.objects.all()
+    serializer_class = PacketSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["name"]  # Specify fields you want to search
+
+
+class PacketRetrieveAPIView(generics.RetrieveAPIView):
     queryset = Packet.objects.all()
     serializer_class = PacketSerializer
 
-    @action(detail=True, methods=["post"])
-    def upload_image(self, request, pk=None):
-        packet = self.get_object()
-        serializer = ImagePacketSerializer(data=request.data)
+    def get_object(self):
+        try:
+            return super().get_object()
+        except Http404:
+            raise Http404({"message": "Packet not found"})
+
+
+class PacketCreateAPIView(generics.CreateAPIView):
+    queryset = Packet.objects.all()
+    serializer_class = PacketCreateSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(packet=packet)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer.save()
+            return Response(
+                {"message": "success"},
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
-class PacketImageViewSet(viewsets.ModelViewSet):
-    queryset = ImagePacketModel.objects.all()
-    serializer_class = ImagePacketSerializer
+class PacketUpdateAPIView(generics.UpdateAPIView):
+    queryset = Packet.objects.all()
+    serializer_class = PacketCreateSerializer
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(
+            {"message": "success"},
+            status=status.HTTP_200_OK,
+        )
+
+    def perform_update(self, serializer):
+        # Custom logic before saving if needed
+        serializer.save()
+
+    def get_object(self):
+        try:
+            return super().get_object()
+        except Http404:
+            raise Http404({"message": "Packet not found"})
 
 
-# Guide API 7
-class GuideViewSet(viewsets.ModelViewSet):
+class PacketDestroyAPIView(generics.DestroyAPIView):
+    queryset = Packet.objects.all()
+    serializer_class = PacketSerializer
+
+    def get_object(self):
+        try:
+            return super().get_object()
+        except Http404:
+            raise Http404({"message": "Packet not found"})
+
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return Response({"message": "success"}, status=status.HTTP_200_OK)
+    
+
+
+# Guide management's by oudone
+class GuideListAPIView(generics.ListAPIView):
+    queryset = Guide.objects.all()
+    serializer_class = GuideSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["name"]  # Specify fields you want to search
+
+
+class GuideRetrieveAPIView(generics.RetrieveAPIView):
     queryset = Guide.objects.all()
     serializer_class = GuideSerializer
 
-    @action(detail=True, methods=["post"])
-    def upload_image(self, request, pk=None):
-        guide = self.get_object()
-        serializer = ImageGuideSerializer(data=request.data)
+    def get_object(self):
+        try:
+            return super().get_object()
+        except Http404:
+            raise Http404({"message": "Guide not found"})
+
+
+class GuideCreateAPIView(generics.CreateAPIView):
+    queryset = Guide.objects.all()
+    serializer_class = GuideCreateSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(guide=guide)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer.save()
+            return Response(
+                {"message": "success"},
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
-class GuideImageViewSet(viewsets.ModelViewSet):
-    queryset = ImageGuideModel.objects.all()
-    serializer_class = ImageGuideSerializer
+class GuideUpdateAPIView(generics.UpdateAPIView):
+    queryset = Guide.objects.all()
+    serializer_class = GuideCreateSerializer
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(
+            {"message": "success"},
+            status=status.HTTP_200_OK,
+        )
+
+    def perform_update(self, serializer):
+        # Custom logic before saving if needed
+        serializer.save()
+
+    def get_object(self):
+        try:
+            return super().get_object()
+        except Http404:
+            raise Http404({"message": "Guide not found"})
+
+
+class GuideDestroyAPIView(generics.DestroyAPIView):
+    queryset = Guide.objects.all()
+    serializer_class = GuideSerializer
+
+    def get_object(self):
+        try:
+            return super().get_object()
+        except Http404:
+            raise Http404({"message": "Guide not found"})
+
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return Response({"message": "success"}, status=status.HTTP_200_OK)
+    
+    
+    
+    
+    
