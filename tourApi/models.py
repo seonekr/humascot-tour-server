@@ -91,8 +91,8 @@ class Tour(models.Model):
         db_table = "tour"
         verbose_name_plural = "2. Tour" 
 
-    category = models.ForeignKey(CategoryModelTour, on_delete=models.CASCADE, verbose_name="category")
-    name = models.CharField(max_length=100, default="name")
+    category = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
     image = models.ImageField(upload_to='media/', null=True, blank=True)
     description = models.TextField()
     price = models.PositiveIntegerField(default=0, verbose_name="price")

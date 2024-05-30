@@ -54,7 +54,6 @@ class ImageTourSerializer(serializers.ModelSerializer):
 
 
 class TourSerializer(serializers.ModelSerializer):
-    category = CategoryTourSerializer(read_only=True)
     images = serializers.SerializerMethodField()
 
     def get_images(self, obj):
@@ -65,6 +64,44 @@ class TourSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tour
         fields = ["id", "category", "name", "image", "images", "description", "price", "address"]
+
+# create tour by oudone
+class TourCreateSerializer(serializers.ModelSerializer):
+    images = serializers.ListField(child=serializers.ImageField(), required=False)
+    class Meta:
+        model = Tour
+        fields = ["id", "category", "name", "image", "images", "description", "price", "address"]
+
+    def create(self, validated_data):
+        images_data = validated_data.pop("images", [])
+        
+        tour = Tour.objects.create(**validated_data)
+        
+        for image_file in images_data:
+            image = ImageTourModel.objects.create(tour=tour, image=image_file)
+        
+        return tour
+    
+    def update(self, instance, validated_data):
+        images_data = validated_data.pop("images", [])
+        
+        # Update Tour fields
+        instance.category = validated_data.get('category', instance.category)
+        instance.name = validated_data.get('name', instance.name)
+        instance.image = validated_data.get('image', instance.image)
+        instance.description = validated_data.get('description', instance.description)
+        instance.price = validated_data.get('price', instance.price)
+        instance.address = validated_data.get('address', instance.address)
+        instance.save()
+
+        if images_data:
+            # Clear existing images if any
+            ImageTourModel.objects.filter(tour=instance).delete()
+            # Add new images
+            for image_file in images_data:
+                ImageTourModel.objects.create(tour=instance, image=image_file)
+
+        return instance
 
 #3
 class CategoryHotelSerializer(serializers.ModelSerializer):
