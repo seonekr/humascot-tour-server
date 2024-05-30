@@ -1,45 +1,84 @@
 from django.db import models
 
+
+class Sitemain(models.Model):
+    class Meta:
+        db_table = "site"
+        verbose_name_plural = "1. Site main"
+
+    logo = models.ImageField(upload_to="media/", null=True, blank=True)
+    email = models.CharField(max_length=200)
+    address = models.TextField(null=True, blank=True)
+    tel = models.CharField(max_length=100, null=True, blank=True)
+    qrcode = models.FileField(
+        null=True, blank=True, verbose_name="qrcode", upload_to="media/"
+    )
+
+    def _str_(self):
+        return str(self.logo)
+
+
+class ImagebannerModel(models.Model):
+    class Meta:
+        db_table = "ImageBannerModel"
+        verbose_name_plural = "1.1. image banner list"
+
+    banner = models.ForeignKey(
+        Sitemain, on_delete=models.CASCADE, verbose_name="Sitemain"
+    )
+    image = models.FileField(
+        null=True, blank=True, verbose_name="image", upload_to="media/"
+    )
+
+    def _str_(self):
+        return f"Image for {self.banner.logo}"
+
+
 class Tour(models.Model):
     class Meta:
         db_table = "tour"
-        verbose_name_plural = "2. Tour" 
+        verbose_name_plural = "2. Tour"
 
     category = models.CharField(max_length=100)
     name = models.CharField(max_length=100)
-    image = models.ImageField(upload_to='media/', null=True, blank=True)
+    image = models.ImageField(upload_to="media/", null=True, blank=True)
     description = models.TextField()
     price = models.PositiveIntegerField(default=0, verbose_name="price")
     address = models.TextField()
-    
+
     def __str__(self):
         return str(self.name)
-    
+
+
 class ImageTourModel(models.Model):
     class Meta:
         db_table = "ImageTourModel"
         verbose_name_plural = "2.2. image tour list"
 
     tour = models.ForeignKey(Tour, on_delete=models.CASCADE, verbose_name="Tour")
-    image = models.FileField(null=True, blank=True, verbose_name="image", upload_to="media/")
+    image = models.FileField(
+        null=True, blank=True, verbose_name="image", upload_to="media/"
+    )
 
     def __str__(self):
         return f"Image for {self.tour.name}"
-    
+
+
 class Hotel(models.Model):
     class Meta:
         db_table = "hotel"
-        verbose_name_plural = "3. Hotel" 
-        
+        verbose_name_plural = "3. Hotel"
+
     category = models.CharField(max_length=100)
     name = models.CharField(max_length=100, default="name")
-    image = models.ImageField(upload_to='media/', null=True, blank=True)
+    image = models.ImageField(upload_to="media/", null=True, blank=True)
     description = models.TextField()
     price = models.PositiveIntegerField(default=0, verbose_name="price")
     address = models.TextField()
 
     def __str__(self):
         return str(self.name)
+
 
 class ImageHotelModel(models.Model):
     class Meta:
@@ -47,53 +86,62 @@ class ImageHotelModel(models.Model):
         verbose_name_plural = "3.3. image hotel list"
 
     hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE, verbose_name="Hotel")
-    image = models.FileField(null=True, blank=True, verbose_name="image", upload_to="media/")
+    image = models.FileField(
+        null=True, blank=True, verbose_name="image", upload_to="media/"
+    )
 
     def __str__(self):
         return f"Image for {self.hotel.name}"
 
-#4  
+
 class Restaurant(models.Model):
     class Meta:
         db_table = "restaurant"
-        verbose_name_plural = "4. Restaurant" 
+        verbose_name_plural = "4. Restaurant"
+
     category = models.CharField(max_length=100)
     name = models.CharField(max_length=100, default="name")
-    image = models.ImageField(upload_to='media/', null=True, blank=True)
+    image = models.ImageField(upload_to="media/", null=True, blank=True)
     description = models.TextField()
     address = models.TextField()
 
     def __str__(self):
         return str(self.name)
 
+
 class ImageRestaurantModel(models.Model):
     class Meta:
         db_table = "ImageRestaurantModel"
         verbose_name_plural = "4.4. image restaurant list"
 
-    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, verbose_name="Restaurant")
-    image = models.FileField(null=True, blank=True, verbose_name="image", upload_to="media/")
+    restaurant = models.ForeignKey(
+        Restaurant, on_delete=models.CASCADE, verbose_name="Restaurant"
+    )
+    image = models.FileField(
+        null=True, blank=True, verbose_name="image", upload_to="media/"
+    )
 
     def __str__(self):
         return f"Image for {self.restaurant.name}"
 
-#5
+
 class Ticket(models.Model):
     class Meta:
         db_table = "Ticket"
-        verbose_name_plural = "5. ticket" 
-        
+        verbose_name_plural = "5. ticket"
+
     category = models.CharField(max_length=100)
-    name = models.CharField(max_length=100, default="name")
-    image = models.ImageField(upload_to='media/', null=True, blank=True)
+    name = models.CharField(max_length=100)
+    image = models.ImageField(upload_to="media/", null=True, blank=True)
     description = models.TextField()
     address = models.TextField()
     price = models.PositiveIntegerField(default=0, verbose_name="price")
-    brand = models.TextField(null=True, blank=True)
-    carnumber = models.PositiveIntegerField(default=0, verbose_name="carnumber", null=True, blank=True)
+    brand = models.CharField(max_length=100)
+    carnumber = models.CharField(max_length=100)
 
     def __str__(self):
-        return str(self.name)    
+        return str(self.name)
+
 
 class ImageTicketModel(models.Model):
     class Meta:
@@ -101,26 +149,29 @@ class ImageTicketModel(models.Model):
         verbose_name_plural = "5.5. image ticket list"
 
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, verbose_name="Ticket")
-    image = models.FileField(null=True, blank=True, verbose_name="image", upload_to="media/")
+    image = models.FileField(
+        null=True, blank=True, verbose_name="image", upload_to="media/"
+    )
 
     def __str__(self):
         return f"Image for {self.ticket.name}"
 
-#6
+
 class Packet(models.Model):
     class Meta:
         db_table = "packet"
-        verbose_name_plural = "6. Packet" 
-    
+        verbose_name_plural = "6. Packet"
+
     category = models.CharField(max_length=100)
     name = models.CharField(max_length=100, default="name")
-    image = models.ImageField(upload_to='media/', null=True, blank=True)
+    image = models.ImageField(upload_to="media/", null=True, blank=True)
     description = models.TextField()
     address = models.TextField()
     price = models.IntegerField()
 
     def __str__(self):
-        return str(self.name)    
+        return str(self.name)
+
 
 class ImagePacketModel(models.Model):
     class Meta:
@@ -128,25 +179,28 @@ class ImagePacketModel(models.Model):
         verbose_name_plural = "6.6. image packet list"
 
     packet = models.ForeignKey(Packet, on_delete=models.CASCADE, verbose_name="Packet")
-    image = models.FileField(null=True, blank=True, verbose_name="image", upload_to="media/")
+    image = models.FileField(
+        null=True, blank=True, verbose_name="image", upload_to="media/"
+    )
 
     def __str__(self):
         return f"Image for {self.packet.name}"
 
-#7
+
 class Guide(models.Model):
     class Meta:
         db_table = "guide"
-        verbose_name_plural = "7. Guide" 
-    
+        verbose_name_plural = "7. Guide"
+
     category = models.CharField(max_length=100)
     name = models.CharField(max_length=100)
-    image = models.ImageField(upload_to='media/')
+    image = models.ImageField(upload_to="media/")
     description = models.TextField()
     address = models.TextField()
 
     def __str__(self):
         return str(self.name)
+
 
 class ImageGuideModel(models.Model):
     class Meta:
@@ -154,8 +208,9 @@ class ImageGuideModel(models.Model):
         verbose_name_plural = "7.7. image guide list"
 
     guide = models.ForeignKey(Guide, on_delete=models.CASCADE, verbose_name="Guide")
-    image = models.FileField(null=True, blank=True, verbose_name="image", upload_to="media/")
+    image = models.FileField(
+        null=True, blank=True, verbose_name="image", upload_to="media/"
+    )
 
     def __str__(self):
         return f"Image for {self.guide.name}"
-

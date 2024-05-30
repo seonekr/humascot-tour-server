@@ -130,4 +130,26 @@ urlpatterns = [
         views.TicketDestroyAPIView.as_view(),
         name="ticket-delete",
     ),
+    # manage site main
+    path("sitemain/list/", views.SitemainListAPIView.as_view(), name="sitemain-list"),
+    path(
+        "sitemain/create/",
+        views.SitemainCreateAPIView.as_view(),
+        name="sitemain-create",
+    ),
+    path(
+        "sitemain/detail/<int:pk>/",
+        views.SitemainRetrieveAPIView.as_view(),
+        name="sitemain-detail",
+    ),
+    path(
+        "sitemain/update/<int:pk>/",
+        views.SitemainUpdateAPIView.as_view(),
+        name="sitemain-update",
+    ),
+    path(
+        "sitemain/delete/<int:pk>/",
+        views.SitemainDestroyAPIView.as_view(),
+        name="sitemain-delete",
+    ),
 ]

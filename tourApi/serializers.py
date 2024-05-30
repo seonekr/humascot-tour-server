@@ -1,6 +1,8 @@
 # serializers.py
 from rest_framework import serializers
 from .models import (
+    Sitemain,
+    ImagebannerModel,
     Tour,
     ImageTourModel,
     Hotel,
@@ -14,6 +16,64 @@ from .models import (
     Guide,
     ImageGuideModel,
 )
+
+
+class SitemainBannerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImagebannerModel
+        fields = "__all__"
+
+
+class SitemainSerializer(serializers.ModelSerializer):
+    banners = serializers.SerializerMethodField()
+
+    def get_banners(self, obj):
+        banners = ImagebannerModel.objects.filter(banner=obj)
+        serializer = SitemainBannerSerializer(banners, many=True)
+        return [i["image"] for i in serializer.data]
+
+    class Meta:
+        model = Sitemain
+        fields = ["id", "banners", "logo", "email", "address", "tel", "qrcode"]
+
+
+class SitemainCreateSerializer(serializers.ModelSerializer):
+    banners = serializers.ListField(child=serializers.ImageField(), required=False)
+
+    class Meta:
+        model = Sitemain
+        fields = ["id", "banners", "logo", "email", "address", "tel", "qrcode"]
+
+    def create(self, validated_data):
+        banners_data = validated_data.pop("banners", [])
+
+        sitemain = Sitemain.objects.create(**validated_data)
+
+        for image_file in banners_data:
+            image = ImagebannerModel.objects.create(sitemain=sitemain, image=image_file)
+
+        return sitemain
+
+    def update(self, instance, validated_data):
+        banners_data = validated_data.pop("banners", [])
+
+        # Update Sitemain fields
+        instance.logo = validated_data.get("logo", instance.logo)
+        instance.email = validated_data.get("email", instance.email)
+        instance.address = validated_data.get("address", instance.address)
+        instance.tel = validated_data.get("tel", instance.tel)
+        instance.qrcode = validated_data.get("qrcode", instance.qrcode)
+
+        instance.save()
+
+        if banners_data:
+            # Clear existing banner if any
+            ImagebannerModel.objects.filter(sitemain=instance).delete()
+            # Add new banner
+            for image_file in banners_data:
+                ImagebannerModel.objects.create(sitemain=instance, image=image_file)
+
+        return instance
 
 
 # Tour Serialisers

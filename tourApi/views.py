@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework import viewsets
 from rest_framework import status, generics, filters
 from django.http import Http404
-from .models import Tour, Hotel, Restaurant, Packet, Guide, Ticket
+from .models import Tour, Hotel, Restaurant, Packet, Guide, Ticket, Sitemain
 
 from .serializers import (
     TourSerializer,
@@ -14,9 +14,13 @@ from .serializers import (
     HotelCreateSerializer,
     RestaurantSerializer,
     RestaurantCreateSerializer,
-    PacketSerializer, PacketCreateSerializer,
-    GuideSerializer, GuideCreateSerializer,
-    TicketSerializer, TicketCreateSerializer
+    PacketSerializer,
+    PacketCreateSerializer,
+    GuideSerializer,
+    GuideCreateSerializer,
+    TicketSerializer,
+    TicketCreateSerializer,
+    SitemainSerializer, SitemainCreateSerializer
 )
 
 
@@ -178,7 +182,7 @@ class HotelDestroyAPIView(generics.DestroyAPIView):
         instance = self.get_object()
         instance.delete()
         return Response({"message": "success"}, status=status.HTTP_200_OK)
-    
+
 
 # Restaurant management's by oudone
 class RestaurantListAPIView(generics.ListAPIView):
@@ -334,7 +338,6 @@ class PacketDestroyAPIView(generics.DestroyAPIView):
         instance = self.get_object()
         instance.delete()
         return Response({"message": "success"}, status=status.HTTP_200_OK)
-    
 
 
 # Guide management's by oudone
@@ -413,15 +416,17 @@ class GuideDestroyAPIView(generics.DestroyAPIView):
         instance = self.get_object()
         instance.delete()
         return Response({"message": "success"}, status=status.HTTP_200_OK)
-    
-#API Ticket list
+
+
+# API Ticket list
 class TicketListAPIView(generics.ListAPIView):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ["name"]  # Specify fields you want to search
 
-#API Ticket Detail
+
+# API Ticket Detail
 class TicketRetrieveAPIView(generics.RetrieveAPIView):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
@@ -432,7 +437,8 @@ class TicketRetrieveAPIView(generics.RetrieveAPIView):
         except Http404:
             raise Http404({"message": "Ticket not found"})
 
-#API Ticket Create
+
+# API Ticket Create
 class TicketCreateAPIView(generics.CreateAPIView):
     queryset = Ticket.objects.all()
     serializer_class = TicketCreateSerializer
@@ -442,14 +448,15 @@ class TicketCreateAPIView(generics.CreateAPIView):
         if serializer.is_valid():
             serializer.save()
             return Response(
-                {"message": "success", "data": serializer.data},
+                {"message": "success"},
                 status=status.HTTP_201_CREATED,
             )
         return Response(
             {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
         )
 
-#API Ticket Updete
+
+# API Ticket Updete
 class TicketUpdateAPIView(generics.UpdateAPIView):
     queryset = Ticket.objects.all()
     serializer_class = TicketCreateSerializer
@@ -461,7 +468,7 @@ class TicketUpdateAPIView(generics.UpdateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(
-            {"message": "success", "data": serializer.data},
+            {"message": "success"},
             status=status.HTTP_200_OK,
         )
 
@@ -475,7 +482,8 @@ class TicketUpdateAPIView(generics.UpdateAPIView):
         except Http404:
             raise Http404({"message": "Ticket not found"})
 
-#API Ticket Delete
+
+# API Ticket Delete
 class TicketDestroyAPIView(generics.DestroyAPIView):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
@@ -489,7 +497,87 @@ class TicketDestroyAPIView(generics.DestroyAPIView):
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.delete()
-        return Response({"message": "success"}, status=status.HTTP_200_OK)   
-    
-    
-    
+        return Response({"message": "success"}, status=status.HTTP_200_OK)
+
+
+# main page API 1
+# API Sitemain list
+class SitemainListAPIView(generics.ListAPIView):
+    queryset = Sitemain.objects.all()
+    serializer_class = SitemainSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["name"]  # Specify fields you want to search
+
+
+# API Sitemain Detail
+class SitemainRetrieveAPIView(generics.RetrieveAPIView):
+    queryset = Sitemain.objects.all()
+    serializer_class = SitemainSerializer
+
+    def get_object(self):
+        try:
+            return super().get_object()
+        except Http404:
+            raise Http404({"message": "Sitemain not found"})
+
+
+# API Sitemain Create
+class SitemainCreateAPIView(generics.CreateAPIView):
+    queryset = Sitemain.objects.all()
+    serializer_class = SitemainCreateSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "success"},
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+# API Sitemain Updete
+class SitemainUpdateAPIView(generics.UpdateAPIView):
+    queryset = Sitemain.objects.all()
+    serializer_class = SitemainCreateSerializer
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(
+            {"message": "success"},
+            status=status.HTTP_200_OK,
+        )
+
+    def perform_update(self, serializer):
+        # Custom logic before saving if needed
+        serializer.save()
+
+    def get_object(self):
+        try:
+            return super().get_object()
+        except Http404:
+            raise Http404({"message": "Sitemain not found"})
+
+
+# API Sitemain Delete
+class SitemainDestroyAPIView(generics.DestroyAPIView):
+    queryset = Sitemain.objects.all()
+    serializer_class = SitemainSerializer
+
+    def get_object(self):
+        try:
+            return super().get_object()
+        except Http404:
+            raise Http404({"message": "Sitemain not found"})
+
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return Response({"message": "success"}, status=status.HTTP_200_OK)
