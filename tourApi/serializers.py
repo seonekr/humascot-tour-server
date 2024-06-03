@@ -395,7 +395,6 @@ class GuideSerializer(serializers.ModelSerializer):
             "image",
             "images",
             "description",
-            "address",
         ]
 
 
@@ -411,7 +410,6 @@ class GuideCreateSerializer(serializers.ModelSerializer):
             "image",
             "images",
             "description",
-            "address",
         ]
 
     def create(self, validated_data):
@@ -429,7 +427,6 @@ class GuideCreateSerializer(serializers.ModelSerializer):
         instance.name = validated_data.get("name", instance.name)
         instance.image = validated_data.get("image", instance.image)
         instance.description = validated_data.get("description", instance.description)
-        instance.address = validated_data.get("address", instance.address)
         instance.save()
 
         if images_data:
